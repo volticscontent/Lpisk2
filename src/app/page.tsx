@@ -3,6 +3,36 @@
 import Image from 'next/image'
 import { useState } from 'react'
 
+// Declare fbq for TypeScript
+declare global {
+  interface Window {
+    fbq: unknown;
+  }
+}
+
+// Meta Pixel tracking function
+const trackCTAClick = (sectionId: number, ctaType: string, buttonText: string) => {
+  if (typeof window !== 'undefined' && window.fbq) {
+    window.fbq('track', 'Lead', {
+      content_name: `Seção ${sectionId} - ${ctaType}`,
+      content_category: 'CTA Click',
+      value: sectionId,
+      currency: 'BRL',
+      custom_parameter_1: `secao_${sectionId}`,
+      custom_parameter_2: ctaType,
+      custom_parameter_3: buttonText
+    })
+    
+    // Track custom event for better organization
+    window.fbq('trackCustom', `CTA_Secao_${sectionId}`, {
+      section: sectionId,
+      cta_type: ctaType,
+      button_text: buttonText,
+      timestamp: new Date().toISOString()
+    })
+  }
+}
+
 const sectionsData = [
   {
     id: 1,
@@ -90,7 +120,7 @@ export default function Home() {
           return (
             <div key={section.id}>
               <section className={`${sectionClasses.bg} ${sectionClasses.text} ${index !== sectionsData.length - 1}`}>
-                <div className={section.id === 1 || section.id === 5 ? "w-full" : "max-w-4xl mx-auto text-center"}>
+                <div className={section.id === 1 || section.id === 5 ? "w-full" : "max-w-4sxl mx-auto text-center"}>
 
                 {/* Banner Image - Only on first section at top */}
                 {section.id === 1 ? (
@@ -110,19 +140,24 @@ export default function Home() {
                     height={1120}
                     className="w- h-auto object-cover"
                   />
-                  <Image
-                    src="/carro.jpg"
-                    alt="Banner Principal LP Piska"
-                    width={1920}
-                    height={1080}
-                    className="w-full h-auto object-cover mt-6"
-                  />
+                  {/* Button */}
+                  <div className="mb-8 mt-10">
+                      <a 
+                        href="https://quiz.felipiska.com/" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-block bg-gradient-to-r rounded-lg shadow-lg shadow-green-500/50 from-green-500 via-green-600 to-green-700 text-white px-8 py-3 text-base hover:bg-gray-800 transition-colors cursor-pointer"
+                        onClick={() => trackCTAClick(section.id, 'Banner', section.buttonText)}
+                      >
+                        {section.buttonText}
+                      </a>
+                    </div>
                   <Image
                     src="/Tópico 2.png"
                     alt="Banner Principal LP Piska"
                     width={1920}
                     height={1080}
-                    className="w-full h-auto object-cover"
+                    className="w-full h-auto object-cover rounded-3xl"
                   />
                   </div>
                 ) : section.id === 3 ? (
@@ -159,20 +194,8 @@ export default function Home() {
                       ))}
                     </div>
 
-                    {/* Button */}
-                    <div className="mb-8">
-                      <a 
-                        href="https://quiz.felipiska.com/" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="inline-block bg-gradient-to-r rounded-lg shadow-lg shadow-green-500/50 from-green-400 to-green-500 text-white px-8 py-3 text-base hover:bg-gray-800 transition-colors cursor-pointer"
-                      >
-                        {section.buttonText}
-                      </a>
-                    </div>
-
                     {/* Images */}
-                    <div className="grid grid-cols-2 gap-4 max-w-md mt-5 mx-auto mb-10">
+                    <div className="grid grid-cols-3 gap-4 max-w-md mt-5 mx-auto mb-10">
                       <div className="rounded-lg overflow-hidden">
                         <Image
                           src="/image3.jpg"
@@ -184,7 +207,16 @@ export default function Home() {
                       </div>
                       <div className="rounded-lg overflow-hidden">
                         <Image
-                          src="/image2.jpg"
+                          src="/image4.jpg"
+                          alt="Foto 2"
+                          width={200}
+                          height={400}
+                          className="w-full h-120 object-cover"
+                        />
+                      </div>
+                      <div className="rounded-lg overflow-hidden">
+                        <Image
+                          src="/image2 (1).jpg"
                           alt="Foto 2"
                           width={200}
                           height={400}
@@ -287,7 +319,8 @@ export default function Home() {
                         href="https://quiz.felipiska.com/" 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 bg-black-900/50 shadow-lg shadow-green-500/50 border-2 border-[#00ff41] text-[#00ff41] font-bold py-3 px-8 rounded-full hover:bg-[#00ff41] hover:text-black transition-all duration-300 cursor-pointer"
+                        className="inline-flex items-center gap-2 bg-black-900/50 shadow-lg shadow-green-500/50 bg-gradient-to-r from-green-500 via-green-600 to-green-700 border-2 border-[#00ff41] text-[#fffff] font-bold py-3 px-8 rounded-2xl hover:bg-[#00ff41] hover:text-black transition-all duration-300 cursor-pointer"
+                        onClick={() => trackCTAClick(section.id, 'Continue', section.buttonText)}
                       >
                         {section.buttonText}
                         <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
@@ -331,12 +364,11 @@ export default function Home() {
                         }
                       ].map((item, i) => (
                         <div key={i} className="text-left flex gap-4">
-                          <div className="flex-shrink-0 w-12 h-12 bg-[#0bb636] text-gray-100 rounded-lg mt-12 flex items-center justify-center font-bold text-lg">
-                            {item.number}
+                          <div className="flex-shrink-0 w-12 h-12 bg-[#0bb636] text-gray-100 rounded-lg flex items-center justify-center font-bold text-lg">
+                            {item.number} 
                           </div>
-                          <div>
-                            <h3 className="text-xl font-bold mb-2">{item.title}</h3>
-                            <div className="text-white leading-relaxed">
+                          <div>  
+                             <div className="text-white leading-relaxed">
                               {item.content.split('\n\n').map((paragraph, idx) => (
                                 <p key={idx} className={idx > 0 ? 'mt-4' : ''}>
                                   {paragraph}
@@ -502,13 +534,24 @@ export default function Home() {
           }
         })}
         </div>
+              
+          <div className="max-w-2xl mx-auto bg-[#151515] text-center">
+            <a 
+              href="https://quiz.felipiska.com/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-block bg-gradient-to-r from-green-600 via-green-500 to-green-700 shadow-lg shadow-green-400/25 border-1 border-gray-500/50 text-white font-bold text-lg px-10 py-4 rounded-lg hover:scale-105 transition-all duration-300 cursor-pointer"
+              onClick={() => trackCTAClick(section.id, 'Join Mentoria', 'QUERO ME JUNTAR À MENTORIA')}
+            >
+              QUERO ME JUNTAR À MENTORIA
+            </a>
+          </div>     
 
-        <div className="w-full bg-white py-16 px-4">
-          <img src="/tópico3.png" alt="Mentoria" className="w-full h-auto object-cover" />
+        <div className="w-full bg-gradient-to-b from-[#141314] via-[#141314]  to-white py-16 px-4">
           <div className="w-full h-full flex items-center justify-center">
-            <div className="max-w-md mx-auto bg-white rounded-2xl shadow-2xl p-8 text-center">
+            <div className="max-w-md mx-auto bg-white border-2 border-green-500 shadow-lg shadow-black/50 rounded-2xl p-8 text-center">
               {/* Title */}
-              <h2 className="text-3xl font-medium text-black mb-8 leading-tight">
+              <h2 className="text-3xl font-light text-black mb-8 leading-tight">
                 O que você vai receber<br />
                 nessa Consultoria Gratuita?
               </h2>
@@ -526,7 +569,8 @@ export default function Home() {
                     href="https://quiz.felipiska.com/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block w-full bg-gradient-to-r shadow-lg shadow-black/10 border-1 border-gray-500/50 text-black font-light py-4 px-6 rounded-lg text-sm leading-tight hover:bg-gray-800 transition-all duration-300 hover:scale-105 cursor-pointer"
+                    className="block w-full bg-gradient-to-r shadow-lg shadow-black/10 border-1 border-gray-500/50 text-gray-900 font-light py-4 px-6 rounded-lg text-sm leading-tight hover:bg-gray-800 transition-all duration-300 hover:scale-105 cursor-pointer"
+                    onClick={() => trackCTAClick(3, 'Benefit', benefit)}
                   >
                     {benefit}
                   </a>
@@ -535,27 +579,6 @@ export default function Home() {
             </div>
           </div>
         </div>
-        {/* Final Call-to-Action Section */}
-        <section className="w-full bg-white py-16 px-4">
-          <div className="max-w-2xl mx-auto text-center">
-            <h2 className="text-4xl md:text-4xl font-medium text-black mb-6">
-              Pronto para se juntar à <span className="text-[#12b928] shadow-green-500/50">mentoria</span>?
-            </h2>
-            
-            <p className="text-black text-lg mb-8">
-              Não perca esta oportunidade única de transformar sua vida financeira.
-            </p>
-
-            <a 
-              href="https://quiz.felipiska.com/" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="inline-block bg-gradient-to-r from-green-600 via-green-500 to-green-700 text-white font-bold text-lg px-10 py-4 rounded-lg hover:scale-105 transition-all duration-300 cursor-pointer"
-            >
-              QUERO ME JUNTAR À MENTORIA
-            </a>
-          </div>
-        </section>
 
         {/* Background decoration */}
         <div className="fixed inset-0 -z-10 overflow-hidden">
