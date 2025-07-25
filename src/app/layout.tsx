@@ -1,25 +1,72 @@
-import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
-import './globals.css'
-import Head from 'next/head'
+import type { Metadata } from "next";
+import { Geist, Geist_Mono, Maven_Pro } from "next/font/google";
+import Script from "next/script";
+import "./globals.css";
 
-const inter = Inter({ subsets: ['latin'] })
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+const mavenPro = Maven_Pro({
+  variable: "--font-maven-pro",
+  subsets: ["latin"],
+  display: "swap",
+});
 
 export const metadata: Metadata = {
-  title: 'Wi-Fi Money - Mentoria Global',
-  description: 'Transforme sua vida financeira com nossa mentoria exclusiva de e-commerce global',
-}
+  title: "Wifi-M$ney - Quiz Interativo",
+  description: "Formulário em formato de quiz para consultoria estratégica",
+  icons: {
+    icon: '/logo.jpg',
+  },
+};
 
 export default function RootLayout({
   children,
-}: {
-  children: React.ReactNode
-}) {
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" suppressHydrationWarning={true}>
       <head>
+        {/* Google Analytics */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-G-D6BPDXCNJQ"
+          strategy="afterInteractive"
+          id="google-analytics-script"
+        />
+        <Script
+          id="google-analytics-config"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              
+              // O ID será configurado dinamicamente pelo page.tsx
+              // Substitua G-G-D6BPDXCNJQ pelo seu ID real do Google Analytics
+              gtag('config', 'G-D6BPDXCNJQ', {
+                page_title: 'PiscaForm - Quiz Interativo',
+                page_location: window.location.href,
+                custom_map: {
+                  'dimension1': 'quiz_step'
+                }
+              });
+            `,
+          }}
+        />
+        
         {/* Meta Pixel Code */}
-        <script
+        <Script
+          id="meta-pixel"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: `
               !function(f,b,e,v,n,t,s)
@@ -30,8 +77,53 @@ export default function RootLayout({
               t.src=v;s=b.getElementsByTagName(e)[0];
               s.parentNode.insertBefore(t,s)}(window, document,'script',
               'https://connect.facebook.net/en_US/fbevents.js');
-              fbq('init', '24564387766487438');
-              fbq('track', 'PageView');
+              
+              // Inicializar o pixel
+              fbq('init', '1665742907429984');
+              
+              // Função para capturar todos os parâmetros de tracking
+              function getAllTrackingParams() {
+                const urlParams = new URLSearchParams(window.location.search);
+                return {
+                  utm_source: urlParams.get('utm_source') || '',
+                  utm_medium: urlParams.get('utm_medium') || '',
+                  utm_campaign: urlParams.get('utm_campaign') || '',
+                  utm_term: urlParams.get('utm_term') || '',
+                  utm_content: urlParams.get('utm_content') || '',
+                  fbclid: urlParams.get('fbclid') || '',
+                  gclid: urlParams.get('gclid') || '',
+                  referrer: document.referrer || '',
+                  page_location: window.location.href,
+                  user_agent: navigator.userAgent,
+                  timestamp: new Date().toISOString()
+                };
+              }
+              
+              // Capturar parâmetros de tracking
+              const trackingParams = getAllTrackingParams();
+              
+              // Armazenar parâmetros importantes no sessionStorage
+              if (trackingParams.utm_source || trackingParams.utm_medium || trackingParams.utm_campaign || 
+                  trackingParams.fbclid || trackingParams.gclid) {
+                try {
+                  sessionStorage.setItem('utmParams', JSON.stringify(trackingParams));
+                  console.log('📱 Parâmetros de tracking capturados e armazenados:', trackingParams);
+                } catch (error) {
+                  console.error('Erro ao armazenar parâmetros de tracking:', error);
+                }
+              }
+              
+              // Filtrar parâmetros não vazios para o PageView
+              const cleanParams = {};
+              Object.entries(trackingParams).forEach(([key, value]) => {
+                if (value && value !== '') {
+                  cleanParams[key] = value;
+                }
+              });
+              
+              // ENVIAR APENAS UM PAGEVIEW - SEM EVENTOS DUPLICADOS
+              console.log('📊 Enviando PageView único para Meta Pixel:', cleanParams);
+              fbq('track', 'PageView', cleanParams);
             `,
           }}
         />
@@ -40,12 +132,16 @@ export default function RootLayout({
             height="1" 
             width="1" 
             style={{display: 'none'}}
-            src="https://www.facebook.com/tr?id=24564387766487438&ev=PageView&noscript=1"
+            src="https://www.facebook.com/tr?id=1665742907429984&ev=PageView&noscript=1"
+            alt=""
           />
         </noscript>
-        {/* End Meta Pixel Code */}
       </head>
-      <body className={inter.className}>{children}</body>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} ${mavenPro.variable} antialiased`}
+      >
+        {children}
+      </body>
     </html>
-  )
+  );
 }

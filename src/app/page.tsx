@@ -1,35 +1,90 @@
 'use client'
 
 import Image from 'next/image'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
-// Declare fbq for TypeScript
+// Declare fbq and gtag for TypeScript
 declare global {
   interface Window {
-    fbq: unknown;
+    fbq: (...args: any[]) => void;
+    gtag: (...args: any[]) => void;
   }
 }
 
-// Meta Pixel tracking function
-const trackCTAClick = (sectionId: number, ctaType: string, buttonText: string) => {
-  if (typeof window !== 'undefined' && window.fbq) {
-    window.fbq('track', 'Lead', {
-      content_name: `Seção ${sectionId} - ${ctaType}`,
-      content_category: 'CTA Click',
-      value: sectionId,
-      currency: 'BRL',
-      custom_parameter_1: `secao_${sectionId}`,
-      custom_parameter_2: ctaType,
-      custom_parameter_3: buttonText
-    })
-    
-    // Track custom event for better organization
-    window.fbq('trackCustom', `CTA_Secao_${sectionId}`, {
-      section: sectionId,
-      cta_type: ctaType,
-      button_text: buttonText,
-      timestamp: new Date().toISOString()
-    })
+// Enhanced tracking function for Meta Pixel and Google Analytics
+const trackCTAClick = (ctaNumber: number, sectionId: number, ctaType: string, buttonText: string) => {
+  // Only run on client side after hydration
+  if (typeof window !== 'undefined') {
+    // Use setTimeout to ensure this runs after hydration
+    setTimeout(() => {
+      // Get stored UTM parameters
+      let utmParams = {};
+      try {
+        const storedParams = sessionStorage.getItem('utmParams');
+        if (storedParams) {
+          utmParams = JSON.parse(storedParams);
+        }
+      } catch (error) {
+        console.error('Erro ao recuperar parâmetros UTM:', error);
+      }
+
+      // Meta Pixel tracking
+      if (window.fbq) {
+        // InitiateQuiz event
+        window.fbq('track', 'InitiateQuiz', {
+          content_name: `CTA_${ctaNumber}`,
+          content_category: `Seção ${sectionId}`,
+          value: ctaNumber,
+          currency: 'BRL',
+          cta_number: ctaNumber,
+          button_name: buttonText,
+          section_id: sectionId,
+          cta_type: ctaType,
+          ...utmParams
+        });
+        
+        // Custom event for detailed tracking
+        window.fbq('trackCustom', 'CTA_Click', {
+          cta_number: ctaNumber,
+          button_name: buttonText,
+          section_id: sectionId,
+          cta_type: ctaType,
+          section_name: `Seção ${sectionId}`,
+          timestamp: Date.now(),
+          page_url: window.location.href,
+          ...utmParams
+        });
+
+        console.log(`📊 Meta Pixel: CTA #${ctaNumber} "${buttonText}" clicado na seção ${sectionId}`);
+      }
+
+      // Google Analytics tracking
+      if (window.gtag) {
+        window.gtag('event', 'cta_click', {
+          event_category: 'engagement',
+          event_label: `CTA_${ctaNumber}`,
+          cta_number: ctaNumber,
+          button_name: buttonText,
+          section_id: sectionId,
+          cta_type: ctaType,
+          value: ctaNumber,
+          custom_parameter_1: `cta_${ctaNumber}`,
+          custom_parameter_2: ctaType,
+          custom_parameter_3: buttonText,
+          ...utmParams
+        });
+
+        // Also track as conversion event
+        window.gtag('event', 'conversion', {
+          send_to: 'G-D6BPDXCNJQ',
+          event_category: 'CTA',
+          event_label: `CTA_${ctaNumber}`,
+          value: ctaNumber
+        });
+
+        console.log(`📈 Google Analytics: CTA #${ctaNumber} "${buttonText}" clicado na seção ${sectionId}`);
+      }
+    }, 0);
   }
 }
 
@@ -76,10 +131,19 @@ const sectionsData = [
 ]
 
 export default function Home() {
+  // Hydration state
+  const [isClient, setIsClient] = useState(false)
+  
   // Calculator state
-  const [euroValue, setEuroValue] = useState(1)
-  const [realValue, setRealValue] = useState(6.50)
+  const [euroValue, setEuroValue] = useState(50000)
+  const [realValue, setRealValue] = useState(325000)
+  const [selectedOrders, setSelectedOrders] = useState(17)
   const exchangeRate = 6.50
+
+  // Ensure hydration
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
 
   // Handle Euro input change
   const handleEuroChange = (value: number) => {
@@ -93,10 +157,15 @@ export default function Home() {
     setEuroValue(value / exchangeRate)
   }
 
-  // Handle quick amount buttons
-  const handleQuickAmount = (amount: number) => {
-    setEuroValue(amount)
-    setRealValue(amount * exchangeRate)
+  // Handle quick amount buttons (now for daily orders)
+  const handleQuickAmount = (dailyOrders: number) => {
+    const ticketMedio = 100 // €100 ticket médio
+    const diasPorMes = 30
+    const eurosPorMes = dailyOrders * ticketMedio * diasPorMes
+    
+    setEuroValue(eurosPorMes)
+    setRealValue(eurosPorMes * exchangeRate)
+    setSelectedOrders(dailyOrders)
   }
 
   // Define background and text colors for each section
@@ -146,14 +215,17 @@ export default function Home() {
                         href="https://quiz.felipiska.com/" 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="inline-block bg-gradient-to-r rounded-lg shadow-lg shadow-green-500/50 from-green-500 via-green-600 to-green-700 text-white px-8 py-3 text-base hover:bg-gray-800 transition-colors cursor-pointer"
-                        onClick={() => trackCTAClick(section.id, 'Banner', section.buttonText)}
+                        className="inline-block bg-gradient-to-r rounded-lg shadow-lg shadow-green-500/50 from-green-500 via-green-600 to-green-700 text-white px-8 py-5 text-base hover:bg-gray-800 transition-colors cursor-pointer"
+                        onClick={() => trackCTAClick(1, section.id, 'Banner', section.buttonText)}
                       >
                         {section.buttonText}
                       </a>
+                      <p className="text-gray-500 text-sm mt-3 text-center">
+                        Selecionaremos apenas 8 pessoas no mês de julho
+                      </p>
                     </div>
                   <Image
-                    src="/Tópico 2.png"
+                    src="/topico3.png"
                     alt="Banner Principal LP Piska"
                     width={1920}
                     height={1080}
@@ -194,15 +266,28 @@ export default function Home() {
                       ))}
                     </div>
 
+                    {/* Button above images */}
+                    <div className="text-center mt-8 mb-12">
+                      <a 
+                        href="https://quiz.felipiska.com/" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-block bg-gradient-to-r rounded-lg shadow-lg shadow-green-500/50 from-green-500 via-green-600 to-green-700 text-white px-8 py-5 text-base hover:bg-gray-800 transition-colors cursor-pointer"
+                        onClick={() => trackCTAClick(2, section.id, 'Images', 'Aplique para uma consultoria gratuita')}
+                      >
+                        Aplique para uma consultoria gratuita
+                      </a>
+                    </div>
+
                     {/* Images */}
-                    <div className="grid grid-cols-3 gap-4 max-w-md mt-5 mx-auto mb-10">
+                    <div className="grid grid-cols-3 gap-2 max-w-md mt-3  mb-10">
                       <div className="rounded-lg overflow-hidden">
                         <Image
                           src="/image3.jpg"
                           alt="Foto 1"
                           width={200}
                           height={400}
-                          className="w-full h-100 object-cover"
+                          className="w-full h-90 object-cover"
                         />
                       </div>
                       <div className="rounded-lg overflow-hidden">
@@ -211,7 +296,7 @@ export default function Home() {
                           alt="Foto 2"
                           width={200}
                           height={400}
-                          className="w-full h-120 object-cover"
+                          className="w-full h-100 object-cover"
                         />
                       </div>
                       <div className="rounded-lg overflow-hidden">
@@ -220,7 +305,7 @@ export default function Home() {
                           alt="Foto 2"
                           width={200}
                           height={400}
-                          className="w-full h-100 object-cover"
+                          className="w-full h-90 object-cover"
                         />
                       </div>
                     </div>
@@ -228,16 +313,16 @@ export default function Home() {
                 ) : section.id === 4 ? (
                   <div className="max-w-4xl mx-auto py-8 px-4 bg-white rounded-2xl shadow-lg border border-gray-200">
                     {/* Main Title */}
-                    <h2 className="text-3xl md:text-3xl font-bold text-center mb-16 leading-tight text-black">
-                      Porque o mercado de<br />
-                      produto físico global <br />
-                      vai formar o maior número de novos<br />
-                      <span className="text-[#0bb636]">
-                      milionários já visto?</span>
-                    </h2>
+                    <h3 className="text-3xl md:text-3xl font-bold text-center mt-8 mb-8 leading-tight text-black">
+                      Por que o mercado de
+                     produto físico global
+                      vai formar o maior número de novos
+                      <span className="text-[#0bb636] ml-2">
+                       milionários já visto?</span>
+                    </h3>
 
                     {/* Benefits List - AGORA PRIMEIRO */}
-                    <div className="space-y-6 mt-20 mb-8">
+                    <div className="space-y-6 mt-20 mb-16">
                       {[
                         {
                           number: "01",
@@ -246,7 +331,7 @@ export default function Home() {
                         },
                         {
                           number: "02", 
-                          title: "Baixo Nível de Sofisticação",
+                          title: "Baixo Nível de sofisticação",
                           content: "O Mercado global é infinitamente menos sofisticado, para vender no brasil e países da américa do sul, você precisa ser extremamente bom de copy e estratégia.\n\nJá no Global o conhecimento básico irá te levar a patamares que você jamais visitou."
                         },
                         {
@@ -261,7 +346,7 @@ export default function Home() {
                         },
                         {
                           number: "05", 
-                          title: "CPA (Custo por Aquisição) Barato",
+                          title: "Custo por Aquisição Barato",
                           content: "Enquanto no Brasil lutamos para efetuar uma venda de R$50,00 - R$150 Reais.\n\nNo mercado internacional vendemos produtos de 50 euros à 150 euros com extrema facilidade."
                         },
                         {
@@ -270,12 +355,15 @@ export default function Home() {
                           content: "Esse é o principal ponto e que me possibilitou viajar ao redor do mundo. já imaginou colocar de R$400,00 à R$700 por venda no seu bolso?\n\nAqui o jogo é diferente, você irá ganhar em moedas que valem 6-7 vezes mais!"
                         }
                       ].map((item, i) => (
-                        <div key={i} className="text-left flex gap-4">
-                          <div className="flex-shrink-0 w-12 h-12 bg-[#0bb636] text-white rounded-lg flex items-center justify-center font-bold text-lg">
-                            {item.number} 
+                        <div key={i} className="text-left">
+                          <div className="flex gap-4 items-center mb-3">
+                            <div className="flex-shrink-0 w-12 h-12 bg-[#0bb636] text-white rounded-lg flex items-center justify-center font-bold text-lg">
+                              {item.number} 
+                            </div>
+                            <h4 className="text-[#0bb636] font-bold text-2xl">{item.title}</h4>
                           </div>
-                          <div>  
-                             <div className="text-gray-900 leading-relaxed">
+                          <div className="ml-16">
+                            <div className="text-gray-900 leading-relaxed">
                               {item.content.split('\n\n').map((paragraph, idx) => (
                                 <p key={idx} className={idx > 0 ? 'mt-4' : ''}>
                                   {paragraph}
@@ -288,121 +376,141 @@ export default function Home() {
                     </div>
 
                     {/* Currency Conversion Section - AGORA DEPOIS */}
-                    <div className="bg-white rounded-2xl p-8 mb-8 max-w-lg mx-auto border border-gray-200 shadow-md">
-                      <h3 className="text-gray-900 text-xl font-bold text-center mb-6">Calculadora de Câmbio</h3>
-                      {/* Exchange Rate Display */}
-                      <div className="p-4 mb-6 text-center">
-                        <p className="text-gray-700 text-sm mb-1">Taxa atual</p>
-                        <p className="text-gray-900 text-2xl font-bold">1 EUR = 6,50 BRL</p>
-                        <p className="text-gray-500 text-xs mt-1">Atualizado em tempo real</p>
-                      </div>
-                      {/* Calculator Inputs */}
-                      <div className="space-y-4">
-                        {/* Euro Input */}
-                        <div className="bg-gray-100 rounded-lg p-4 border border-gray-200">
-                          <label className="text-gray-700 text-sm block mb-2">Euros (EUR)</label>
-                          <div className="flex items-center">
-                            <span className="text-[#0bb636] text-2xl font-bold mr-3">€</span>
-                            <input 
-                              type="number" 
-                              placeholder="0,00"
-                              className="bg-transparent text-gray-900 text-xl font-semibold flex-1 outline-none"
-                              value={euroValue}
-                              onChange={(e) => {
-                                const value = parseFloat(e.target.value) || 0
-                                handleEuroChange(value)
-                              }}
-                              step="0.01"
-                              min="0"
-                            />
+                    {isClient && (
+                                            <div className="rounded-2xl p-8 mb-8 max-w-lg mx-auto shadow-md" style={{ backgroundColor: '#0B0F0D', border: '2px solid #1A2A22' }}>
+                        <h3 className="text-xl font-bold text-center mb-4" style={{ color: '#F1F1F1' }}>Ganhar €50.000 por mês parece distante?</h3>
+                        
+                        {/* Explanatory Text */}
+                        <div className="text-center mb-6">
+                          <p className="text-base mb-3" style={{ color: '#C2C2C2' }}>Na verdade, é bem mais simples do que parece:</p>
+                          <p className="text-base" style={{ color: '#C2C2C2' }}>Se você vende um produto com ticket médio de €100,<br />você precisa apenas de <strong style={{ color: '#F1F1F1' }}>17 pedidos por dia</strong> para faturar mais de <strong style={{ color: '#F1F1F1' }}>€50.000 por mês</strong>.</p>
+                        </div>
+                        
+                        {/* Exchange Rate Display */}
+                        <div className="p-4 mb-6 text-center">
+                          <p className="text-sm mb-1" style={{ color: '#C2C2C2' }}>Taxa atual</p>
+                          <p className="text-2xl font-bold" style={{ color: '#F1F1F1' }}>1 EUR = 6,50 BRL</p>
+                          <p className="text-xs mt-1" style={{ color: '#C2C2C2' }}>Atualizado em tempo real</p>
+                        </div>
+                        {/* Calculator Inputs */}
+                        <div className="space-y-4">
+                          {/* Euro Input */}
+                          <div className="rounded-lg p-4" style={{ backgroundColor: '#1A2A22', border: '1px solid #1A2A22' }}>
+                            <label className="text-sm block mb-2" style={{ color: '#C2C2C2' }}>Euros (EUR)</label>
+                            <div className="flex items-center">
+                              <span className="text-[#0bb636] text-2xl font-bold mr-3">€</span>
+                              <input 
+                                type="number" 
+                                placeholder="0,00"
+                                className="bg-transparent text-xl font-semibold flex-1 outline-none"
+                                style={{ color: '#F1F1F1' }}
+                                value={euroValue}
+                                onChange={(e) => {
+                                  const value = parseFloat(e.target.value) || 0
+                                  handleEuroChange(value)
+                                }}
+                                step="0.01"
+                                min="0"
+                              />
+                            </div>
+                          </div>
+                          {/* Real Input */}
+                          <div className="rounded-lg p-4" style={{ backgroundColor: '#1A2A22', border: '1px solid #1A2A22' }}>
+                            <label className="text-sm block mb-2" style={{ color: '#C2C2C2' }}>Reais (BRL)</label>
+                            <div className="flex items-center">
+                              <span className="text-[#0bb636] text-2xl font-bold mr-3">R$</span>
+                              <input 
+                                type="number" 
+                                placeholder="0,00"
+                                className="bg-transparent text-xl font-semibold flex-1 outline-none"
+                                style={{ color: '#F1F1F1' }}
+                                value={realValue.toFixed(2)}
+                                onChange={(e) => {
+                                  const value = parseFloat(e.target.value) || 0
+                                  handleRealChange(value)
+                                }}
+                                step="0.01"
+                                min="0"
+                              />
+                            </div>
                           </div>
                         </div>
-                        {/* Real Input */}
-                        <div className="bg-gray-100 rounded-lg p-4 border border-gray-200">
-                          <label className="text-gray-700 text-sm block mb-2">Reais (BRL)</label>
-                          <div className="flex items-center">
-                            <span className="text-[#0bb636] text-2xl font-bold mr-3">R$</span>
-                            <input 
-                              type="number" 
-                              placeholder="0,00"
-                              className="bg-transparent text-gray-900 text-xl font-semibold flex-1 outline-none"
-                              value={realValue.toFixed(2)}
-                              onChange={(e) => {
-                                const value = parseFloat(e.target.value) || 0
-                                handleRealChange(value)
-                              }}
-                              step="0.01"
-                              min="0"
-                            />
+                        {/* Quick Amount Buttons */}
+                        <div className="mt-6">
+                          <p className="text-sm mb-3" style={{ color: '#C2C2C2' }}>Pedidos por dia:</p>
+                          <div className="grid grid-cols-4 gap-2">
+                            {['17', '25', '50', '100'].map((orders) => {
+                              const orderNum = parseFloat(orders)
+                              const isSelected = selectedOrders === orderNum
+                              return (
+                                <button 
+                                  key={orders}
+                                  className={`py-2 px-3 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-105 cursor-pointer ${
+                                    isSelected 
+                                      ? '' 
+                                      : 'hover:bg-green-600'
+                                  }`}
+                                  style={{
+                                    backgroundColor: isSelected ? '#00ff88' : '#1A2A22',
+                                    border: isSelected ? '2px solid #00ff88' : '1px solid #1A2A22',
+                                    color: isSelected ? '#0B0F0D' : '#F1F1F1',
+                                    boxShadow: isSelected ? '0 4px 6px rgba(0, 255, 136, 0.3)' : 'none'
+                                  }}
+                                  onClick={() => handleQuickAmount(orderNum)}
+                                >
+                                  {orders} pedidos
+                                </button>
+                              )
+                            })}
                           </div>
                         </div>
-                      </div>
-                      {/* Quick Amount Buttons */}
-                      <div className="mt-6">
-                        <p className="text-gray-700 text-sm mb-3">Valores rápidos:</p>
-                        <div className="grid grid-cols-4 gap-2">
-                          {['10', '50', '100', '500'].map((amount) => (
-                            <button 
-                              key={amount}
-                              className="bg-gray-100 hover:bg-[#0bb636] border border-gray-200 hover:text-white text-gray-900 py-2 px-3 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-105"
-                              onClick={() => handleQuickAmount(parseFloat(amount))}
-                            >
-                              €{amount}
-                            </button>
-                          ))}
+                        {/* Live Indicator */}
+                        <div className="flex items-center justify-center mt-6 pt-4" style={{ borderTop: '1px solid #1A2A22' }}>
+                          <div className="w-2 h-2 bg-[#0bb636] rounded-full animate-pulse mr-2"></div>
+                          <span className="text-xs" style={{ color: '#C2C2C2' }}>Cotação em tempo real</span>
                         </div>
                       </div>
-                      {/* Live Indicator */}
-                      <div className="flex items-center justify-center mt-6 pt-4 border-t border-gray-200">
-                        <div className="w-2 h-2 bg-[#0bb636] rounded-full animate-pulse mr-2"></div>
-                        <span className="text-gray-700 text-xs">Cotação em tempo real</span>
-                      </div>
-                    </div>
+                    )}
 
                     {/* Continue Button */}
-                    <div className="text-center mb-12 mt-12"> {/* Espaço acima AUMENTADO e abaixo do botão 'Continue navegando' */}
+                    <div className="text-center mt-8 mb-12">
                       <a 
                         href="https://quiz.felipiska.com/" 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 bg-gradient-to-r from-[#0bb636] via-green-500 to-green-700 border-2 border-[#0bb636] text-white font-bold py-3 px-8 rounded-2xl hover:bg-[#0bb636] hover:text-white transition-all duration-300 cursor-pointer shadow-md"
-                        onClick={() => trackCTAClick(section.id, 'Continue', section.buttonText)}
+                        className="inline-block bg-gradient-to-r rounded-lg shadow-lg shadow-green-500/50 from-green-500 via-green-600 to-green-700 text-white px-8 py-5 text-base hover:bg-gray-800 transition-colors cursor-pointer"
+                        onClick={() => trackCTAClick(3, section.id, 'Continue', 'Aplique para uma consultoria gratuita')}
                       >
-                        {section.buttonText}
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                          <path d="M10 15l-5-5h10l-5 5z"/>
-                        </svg>
+                        Aplique para uma consultoria gratuita
                       </a>
                     </div>
 
                     {/* Card de Benefícios - NOVA POSIÇÃO */}
                     <div className="flex justify-center items-center w-full mb-8">
-                      <div className="relative w-full max-w-xl p-1 rounded-3xl" style={{ background: '#00ff88' }}>
-                        <div className="w-full h-full rounded-3xl p-1" style={{ background: '#000000' }}>
-                          <div className="flex flex-col items-center w-full h-full rounded-2xl p-6 md:p-10" style={{ background: '#000000' }}>
-                            {/* Título */}
-                            <h2 className="text-2xl md:text-3xl font-sans font-normal text-white text-center mb-8 leading-tight">
-                              O que você vai receber<br />
-                              nessa Consultoria Gratuita?
-                            </h2>
-                            {/* Card Interno */}
-                            <div className="w-full rounded-2xl p-1" style={{ background: '#00ff88' }}>
-                              <div className="w-full h-full rounded-2xl p-6 md:p-8 flex flex-col items-center" style={{ background: '#e9f4fe' }}>
-                                {/* Texto principal */}
-                                <div className="text-black text-lg md:text-2xl font-bold text-center mb-6">
-                                  Plano prático de como fazer sua primeira venda em euro em 24 horas!
+                      <div className="w-full max-w-xl">
+                        <div className="flex flex-col items-center w-full p-6 md:p-10">
+                          {/* Título */}
+                          <h2 className="text-2xl md:text-3xl font-sans font-bold text-black text-center mb-8 leading-tight">
+                            O que você vai receber<br />
+                            nessa Consultoria Gratuita?
+                          </h2>
+                          {/* Card Interno */}
+                          <div className="w-full rounded-2xl p-1" style={{ background: '#00ff88' }}>
+                            <div className="w-full h-full rounded-2xl p-6 md:p-8 flex flex-col items-center" style={{ background: '#e9f4fe' }}>
+                              {/* Texto principal */}
+                              <div className="text-black text-lg md:text-2xl font-bold text-center mb-6">
+                                Plano prático de como fazer sua primeira venda em euro em 24 horas!
+                              </div>
+                              {/* Boxes verdes */}
+                              <div className="flex flex-col gap-4 w-full">
+                                <div className="bg-[#2fb62b] text-white text-base md:text-lg font-normal text-center rounded-lg py-3 px-4">
+                                  Estrutura de loja que mais converte e não cai
                                 </div>
-                                {/* Boxes verdes */}
-                                <div className="flex flex-col gap-4 w-full">
-                                  <div className="bg-[#2fb62b] text-white text-base md:text-lg font-normal text-center rounded-lg py-3 px-4">
-                                    Estrutura de loja que mais converte e não cai
-                                  </div>
-                                  <div className="bg-[#2fb62b] text-white text-base md:text-lg font-normal text-center rounded-lg py-3 px-4">
-                                    Como receber pagamentos globais<br className='hidden md:block'/> sem uma conta no exterior
-                                  </div>
-                                  <div className="bg-[#2fb62b] text-white text-base md:text-lg font-normal text-center rounded-lg py-3 px-4">
-                                    Exemplos de produtos que faturam<br className='hidden md:block'/> 10.000 euros/mês
-                                  </div>
+                                <div className="bg-[#2fb62b] text-white text-base md:text-lg font-normal text-center rounded-lg py-3 px-4">
+                                  Como receber pagamentos globais<br className='hidden md:block'/> sem uma conta no exterior
+                                </div>
+                                <div className="bg-[#2fb62b] text-white text-base md:text-lg font-normal text-center rounded-lg py-3 px-4">
+                                  Exemplos de produtos que faturam<br className='hidden md:block'/> 10.000 euros/mês
                                 </div>
                               </div>
                             </div>
@@ -412,7 +520,8 @@ export default function Home() {
                     </div>
 
                     {/* Countries Carousel - Before final image */}
-                    <div className="w-full bg-white py-6 overflow-hidden border-t border-gray-200">
+                    {isClient && (
+                      <div className="w-full bg-white py-6 overflow-hidden border-t border-gray-200">
                       <style jsx>{`
                         .countries-container {
                           width: 100%;
@@ -540,6 +649,7 @@ export default function Home() {
                         </div>
                       </div>
                     </div>
+                    )}
                   </div>
                 ) : null}
                 </div>
@@ -568,16 +678,21 @@ export default function Home() {
         })}
         </div>
               
-          <div className="max-w-2xl mx-auto bg-[#151515] text-center mb-16 pb-10"> {/* Espaço abaixo do botão 'QUERO ME JUNTAR À MENTORIA' e padding extra no fundo escuro */}
+          <div className="text-center bg-[#151515] pb-10">
             <a 
               href="https://quiz.felipiska.com/" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="inline-block bg-gradient-to-r from-green-600 via-green-500 to-green-700 shadow-lg shadow-green-400/25 border-1 border-gray-500/50 text-white font-bold text-lg px-10 py-4 rounded-lg hover:scale-105 transition-all duration-300 cursor-pointer"
-              onClick={() => trackCTAClick(section.id, 'Join Mentoria', 'QUERO ME JUNTAR À MENTORIA')}
+              className="inline-block bg-gradient-to-r rounded-lg shadow-lg shadow-green-500/50 from-green-500 via-green-600 to-green-700 text-white px-8 py-5 text-base hover:bg-gray-800 transition-colors cursor-pointer"
+              onClick={() => trackCTAClick(4, 6, 'Join Mentoria', 'Aplique para uma consultoria gratuita')}
             >
-              QUERO ME JUNTAR À MENTORIA
+              Aplique para uma consultoria gratuita
             </a>
+            <div className="flex flex-col mt-20 items-center justify-center mt-4">
+            <p className="text-white text-sm">Todos os direitos reservados </p>
+            <p className="text-white text-sm">@felipiska</p>
+            <p className="text-white text-sm">2025</p>
+            </div>
           </div>     
 
         {/* Background decoration */}
