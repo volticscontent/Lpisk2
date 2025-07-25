@@ -141,7 +141,7 @@ export default function Home() {
                     className="w- h-auto object-cover"
                   />
                   {/* Button */}
-                  <div className="mb-8 mt-10">
+                  <div className="mb-16 mt-10"> {/* Aumenta o espaçamento abaixo do primeiro botão */}
                       <a 
                         href="https://quiz.felipiska.com/" 
                         target="_blank" 
@@ -226,111 +226,18 @@ export default function Home() {
                     </div>
                   </div>
                 ) : section.id === 4 ? (
-                  <div className="max-w-4xl mx-auto py-8 px-4">
+                  <div className="max-w-4xl mx-auto py-8 px-4 bg-white rounded-2xl shadow-lg border border-gray-200">
                     {/* Main Title */}
-                    <h2 className="text-3xl md:text-3xl font-bold text-center mb-16 leading-tight">
+                    <h2 className="text-3xl md:text-3xl font-bold text-center mb-16 leading-tight text-black">
                       Porque o mercado de<br />
                       produto físico global <br />
                       vai formar o maior número de novos<br />
-                      <span className="text-[#00ff41]">
+                      <span className="text-[#0bb636]">
                       milionários já visto?</span>
                     </h2>
 
-                    {/* Currency Conversion Section */}
-                    <div className="bg-black/50 rounded-2xl p-8 mb-8 max-w-lg mx-auto border border-gray-500">
-                      <h3 className="text-white text-xl font-bold text-center mb-6">Calculadora de Câmbio</h3>
-                      
-                      {/* Exchange Rate Display */}
-                      <div className="p-4 mb-6 text-center">
-                        <p className="text-white text-sm mb-1">Taxa atual</p>
-                        <p className="text-white text-2xl font-bold">1 EUR = 6,50 BRL</p>
-                        <p className="text-white text-xs mt-1">Atualizado em tempo real</p>
-                      </div>
-
-                      {/* Calculator Inputs */}
-                      <div className="space-y-4">
-                        {/* Euro Input */}
-                        <div className="bg-black/50 rounded-lg p-4 bg-blend-saturation border border-gray-500">
-                          <label className="text-white text-sm block mb-2">Euros (EUR)</label>
-                          <div className="flex items-center">
-                            <span className="text-[#00ff37] text-2xl font-bold mr-3">€</span>
-                            <input 
-                              type="number" 
-                              placeholder="0,00"
-                              className="bg-transparent text-white text-xl font-semibold flex-1 outline-none"
-                              value={euroValue}
-                              onChange={(e) => {
-                                const value = parseFloat(e.target.value) || 0
-                                handleEuroChange(value)
-                              }}
-                              step="0.01"
-                              min="0"
-                            />
-                          </div>
-                        </div>
-
-                        {/* Real Input */}
-                        <div className="bg-black/50 rounded-lg p-4 bg-blend-saturation border border-gray-500">
-                          <label className="text-white text-sm block mb-2">Reais (BRL)</label>
-                          <div className="flex items-center">
-                            <span className="text-[#00ff41] text-2xl font-bold mr-3">R$</span>
-                            <input 
-                              type="number" 
-                              placeholder="0,00"
-                              className="bg-transparent text-white text-xl font-semibold flex-1 outline-none"
-                              value={realValue.toFixed(2)}
-                              onChange={(e) => {
-                                const value = parseFloat(e.target.value) || 0
-                                handleRealChange(value)
-                              }}
-                              step="0.01"
-                              min="0"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Quick Amount Buttons */}
-                      <div className="mt-6">
-                        <p className="text-white text-sm mb-3">Valores rápidos:</p>
-                        <div className="grid grid-cols-4 gap-2">
-                          {['10', '50', '100', '500'].map((amount) => (
-                            <button 
-                              key={amount}
-                              className="bg-black/50 hover:bg-[#00ff41] bg-blend-saturation border border-gray-500 hover:text-black text-white py-2 px-3 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-105"
-                              onClick={() => handleQuickAmount(parseFloat(amount))}
-                            >
-                              €{amount}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Live Indicator */}
-                      <div className="flex items-center justify-center mt-6 pt-4 border-t border-gray-800">
-                        <div className="w-2 h-2 bg-[#00ff41] rounded-full animate-pulse mr-2"></div>
-                        <span className="text-white text-xs">Cotação em tempo real</span>
-                      </div>
-                    </div>
-
-                    {/* Continue Button */}
-                    <div className="text-center mb-8">
-                      <a 
-                        href="https://quiz.felipiska.com/" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 bg-black-900/50 shadow-lg shadow-green-500/50 bg-gradient-to-r from-green-500 via-green-600 to-green-700 border-2 border-[#00ff41] text-[#fffff] font-bold py-3 px-8 rounded-2xl hover:bg-[#00ff41] hover:text-black transition-all duration-300 cursor-pointer"
-                        onClick={() => trackCTAClick(section.id, 'Continue', section.buttonText)}
-                      >
-                        {section.buttonText}
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                          <path d="M10 15l-5-5h10l-5 5z"/>
-                        </svg>
-                      </a>
-                    </div>
-
-                    {/* Benefits List */}
-                    <div className="space-y-6 mt-20">
+                    {/* Benefits List - AGORA PRIMEIRO */}
+                    <div className="space-y-6 mt-20 mb-8">
                       {[
                         {
                           number: "01",
@@ -364,11 +271,11 @@ export default function Home() {
                         }
                       ].map((item, i) => (
                         <div key={i} className="text-left flex gap-4">
-                          <div className="flex-shrink-0 w-12 h-12 bg-[#0bb636] text-gray-100 rounded-lg flex items-center justify-center font-bold text-lg">
+                          <div className="flex-shrink-0 w-12 h-12 bg-[#0bb636] text-white rounded-lg flex items-center justify-center font-bold text-lg">
                             {item.number} 
                           </div>
                           <div>  
-                             <div className="text-white leading-relaxed">
+                             <div className="text-gray-900 leading-relaxed">
                               {item.content.split('\n\n').map((paragraph, idx) => (
                                 <p key={idx} className={idx > 0 ? 'mt-4' : ''}>
                                   {paragraph}
@@ -379,6 +286,260 @@ export default function Home() {
                         </div>
                       ))}
                     </div>
+
+                    {/* Currency Conversion Section - AGORA DEPOIS */}
+                    <div className="bg-white rounded-2xl p-8 mb-8 max-w-lg mx-auto border border-gray-200 shadow-md">
+                      <h3 className="text-gray-900 text-xl font-bold text-center mb-6">Calculadora de Câmbio</h3>
+                      {/* Exchange Rate Display */}
+                      <div className="p-4 mb-6 text-center">
+                        <p className="text-gray-700 text-sm mb-1">Taxa atual</p>
+                        <p className="text-gray-900 text-2xl font-bold">1 EUR = 6,50 BRL</p>
+                        <p className="text-gray-500 text-xs mt-1">Atualizado em tempo real</p>
+                      </div>
+                      {/* Calculator Inputs */}
+                      <div className="space-y-4">
+                        {/* Euro Input */}
+                        <div className="bg-gray-100 rounded-lg p-4 border border-gray-200">
+                          <label className="text-gray-700 text-sm block mb-2">Euros (EUR)</label>
+                          <div className="flex items-center">
+                            <span className="text-[#0bb636] text-2xl font-bold mr-3">€</span>
+                            <input 
+                              type="number" 
+                              placeholder="0,00"
+                              className="bg-transparent text-gray-900 text-xl font-semibold flex-1 outline-none"
+                              value={euroValue}
+                              onChange={(e) => {
+                                const value = parseFloat(e.target.value) || 0
+                                handleEuroChange(value)
+                              }}
+                              step="0.01"
+                              min="0"
+                            />
+                          </div>
+                        </div>
+                        {/* Real Input */}
+                        <div className="bg-gray-100 rounded-lg p-4 border border-gray-200">
+                          <label className="text-gray-700 text-sm block mb-2">Reais (BRL)</label>
+                          <div className="flex items-center">
+                            <span className="text-[#0bb636] text-2xl font-bold mr-3">R$</span>
+                            <input 
+                              type="number" 
+                              placeholder="0,00"
+                              className="bg-transparent text-gray-900 text-xl font-semibold flex-1 outline-none"
+                              value={realValue.toFixed(2)}
+                              onChange={(e) => {
+                                const value = parseFloat(e.target.value) || 0
+                                handleRealChange(value)
+                              }}
+                              step="0.01"
+                              min="0"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      {/* Quick Amount Buttons */}
+                      <div className="mt-6">
+                        <p className="text-gray-700 text-sm mb-3">Valores rápidos:</p>
+                        <div className="grid grid-cols-4 gap-2">
+                          {['10', '50', '100', '500'].map((amount) => (
+                            <button 
+                              key={amount}
+                              className="bg-gray-100 hover:bg-[#0bb636] border border-gray-200 hover:text-white text-gray-900 py-2 px-3 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-105"
+                              onClick={() => handleQuickAmount(parseFloat(amount))}
+                            >
+                              €{amount}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      {/* Live Indicator */}
+                      <div className="flex items-center justify-center mt-6 pt-4 border-t border-gray-200">
+                        <div className="w-2 h-2 bg-[#0bb636] rounded-full animate-pulse mr-2"></div>
+                        <span className="text-gray-700 text-xs">Cotação em tempo real</span>
+                      </div>
+                    </div>
+
+                    {/* Continue Button */}
+                    <div className="text-center mb-12 mt-12"> {/* Espaço acima AUMENTADO e abaixo do botão 'Continue navegando' */}
+                      <a 
+                        href="https://quiz.felipiska.com/" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 bg-gradient-to-r from-[#0bb636] via-green-500 to-green-700 border-2 border-[#0bb636] text-white font-bold py-3 px-8 rounded-2xl hover:bg-[#0bb636] hover:text-white transition-all duration-300 cursor-pointer shadow-md"
+                        onClick={() => trackCTAClick(section.id, 'Continue', section.buttonText)}
+                      >
+                        {section.buttonText}
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M10 15l-5-5h10l-5 5z"/>
+                        </svg>
+                      </a>
+                    </div>
+
+                    {/* Card de Benefícios - NOVA POSIÇÃO */}
+                    <div className="flex justify-center items-center w-full mb-8">
+                      <div className="relative w-full max-w-xl p-1 rounded-3xl" style={{ background: '#00ff88' }}>
+                        <div className="w-full h-full rounded-3xl p-1" style={{ background: '#000000' }}>
+                          <div className="flex flex-col items-center w-full h-full rounded-2xl p-6 md:p-10" style={{ background: '#000000' }}>
+                            {/* Título */}
+                            <h2 className="text-2xl md:text-3xl font-sans font-normal text-white text-center mb-8 leading-tight">
+                              O que você vai receber<br />
+                              nessa Consultoria Gratuita?
+                            </h2>
+                            {/* Card Interno */}
+                            <div className="w-full rounded-2xl p-1" style={{ background: '#00ff88' }}>
+                              <div className="w-full h-full rounded-2xl p-6 md:p-8 flex flex-col items-center" style={{ background: '#e9f4fe' }}>
+                                {/* Texto principal */}
+                                <div className="text-black text-lg md:text-2xl font-bold text-center mb-6">
+                                  Plano prático de como fazer sua primeira venda em euro em 24 horas!
+                                </div>
+                                {/* Boxes verdes */}
+                                <div className="flex flex-col gap-4 w-full">
+                                  <div className="bg-[#2fb62b] text-white text-base md:text-lg font-normal text-center rounded-lg py-3 px-4">
+                                    Estrutura de loja que mais converte e não cai
+                                  </div>
+                                  <div className="bg-[#2fb62b] text-white text-base md:text-lg font-normal text-center rounded-lg py-3 px-4">
+                                    Como receber pagamentos globais<br className='hidden md:block'/> sem uma conta no exterior
+                                  </div>
+                                  <div className="bg-[#2fb62b] text-white text-base md:text-lg font-normal text-center rounded-lg py-3 px-4">
+                                    Exemplos de produtos que faturam<br className='hidden md:block'/> 10.000 euros/mês
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Countries Carousel - Before final image */}
+                    <div className="w-full bg-white py-6 overflow-hidden border-t border-gray-200">
+                      <style jsx>{`
+                        .countries-container {
+                          width: 100%;
+                          overflow: hidden;
+                        }
+                        
+                        .countries-slider {
+                          display: flex;
+                          width: calc(250px * 11); /* 11 countries * 250px each */
+                          animation: slideCountries 25s linear infinite;
+                          will-change: transform;
+                        }
+                        
+                        .country-item {
+                          flex: 0 0 250px;
+                          display: flex;
+                          align-items: center;
+                          justify-content: flex-start;
+                          padding: 0 15px;
+                        }
+                        
+                        .country-flag {
+                          color: #222;
+                          text-shadow: none;
+                          font-size: 2.5rem;
+                          margin-right: 15px;
+                          flex-shrink: 0;
+                          font-weight: bold;
+                        }
+                        
+                        .country-name {
+                          color: #222;
+                          font-size: 1.1rem;
+                          font-weight: 500;
+                          white-space: nowrap;
+                        }
+                        
+                        @keyframes slideCountries {
+                          0% {
+                            transform: translateX(0);
+                          }
+                          100% {
+                            transform: translateX(calc(-250px * 11));
+                          }
+                        }
+                        
+                        @media (max-width: 768px) {
+                          .countries-slider {
+                            width: calc(200px * 11);
+                          }
+                          
+                          .country-item {
+                            flex: 0 0 200px;
+                            padding: 0 10px;
+                          }
+                          
+                          .country-flag {
+                            font-size: 2rem;
+                            margin-right: 10px;
+                          }
+                          
+                          .country-name {
+                            font-size: 1rem;
+                          }
+                          
+                          @keyframes slideCountries {
+                            0% {
+                              transform: translateX(0);
+                            }
+                            100% {
+                              transform: translateX(calc(-200px * 11));
+                            }
+                          }
+                        }
+                      `}</style>
+                      
+                      <div className="countries-container">
+                        <div className="countries-slider">
+                          {/* Simplified countries list - only most representative per currency */}
+                          {[
+                            { flag: '$', name: 'Estados Unidos' },
+                            { flag: '€', name: 'Alemanha' },
+                            { flag: '£', name: 'Reino Unido' },
+                            { flag: '¥', name: 'Japão' },
+                            { flag: '₩', name: 'Coreia do Sul' },
+                            { flag: 'kr', name: 'Suécia' },
+                            { flag: '₣', name: 'Suíça' },
+                            { flag: 'د.إ', name: 'Emirados Árabes' },
+                            { flag: 'Kč', name: 'República Tcheca' },
+                            { flag: 'Ft', name: 'Hungria' },
+                            { flag: 'zł', name: 'Polônia' }
+                          ]
+                          .concat([
+                            { flag: '$', name: 'Estados Unidos' },
+                            { flag: '€', name: 'Alemanha' },
+                            { flag: '£', name: 'Reino Unido' },
+                            { flag: '¥', name: 'Japão' },
+                            { flag: '₩', name: 'Coreia do Sul' },
+                            { flag: 'kr', name: 'Suécia' },
+                            { flag: '₣', name: 'Suíça' },
+                            { flag: 'د.إ', name: 'Emirados Árabes' },
+                            { flag: 'Kč', name: 'República Tcheca' },
+                            { flag: 'Ft', name: 'Hungria' },
+                            { flag: 'zł', name: 'Polônia' }
+                          ])
+                          .concat([
+                            { flag: '$', name: 'Estados Unidos' },
+                            { flag: '€', name: 'Alemanha' },
+                            { flag: '£', name: 'Reino Unido' },
+                            { flag: '¥', name: 'Japão' },
+                            { flag: '₩', name: 'Coreia do Sul' },
+                            { flag: 'kr', name: 'Suécia' },
+                            { flag: '₣', name: 'Suíça' },
+                            { flag: 'د.إ', name: 'Emirados Árabes' },
+                            { flag: 'Kč', name: 'República Tcheca' },
+                            { flag: 'Ft', name: 'Hungria' },
+                            { flag: 'zł', name: 'Polônia' }
+                          ])
+                          .map((country, index) => (
+                            <div key={`country-${index}`} className="country-item">
+                              <span className="country-flag">{country.flag}</span>
+                              <span className="country-name">{country.name}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 ) : null}
                 </div>
@@ -388,135 +549,7 @@ export default function Home() {
         })}
       </main>
 
-      {/* Countries Carousel - Before final image */}
-        <div className="w-full bg-black py-6 overflow-hidden">
-          <style jsx>{`
-            .countries-container {
-              width: 100%;
-              overflow: hidden;
-            }
-            
-            .countries-slider {
-              display: flex;
-              width: calc(250px * 11); /* 11 countries * 250px each */
-              animation: slideCountries 25s linear infinite;
-              will-change: transform;
-            }
-            
-            .country-item {
-              flex: 0 0 250px;
-              display: flex;
-              align-items: center;
-              justify-content: flex-start;
-              padding: 0 15px;
-            }
-            
-            .country-flag {
-              color: #00ff41;
-              text-shadow: 0 0 10px #00ff41;
-              font-size: 2.5rem;
-              margin-right: 15px;
-              flex-shrink: 0;
-              font-weight: bold;
-            }
-            
-            .country-name {
-              color: white;
-              font-size: 1.1rem;
-              font-weight: 500;
-              white-space: nowrap;
-            }
-            
-            @keyframes slideCountries {
-              0% {
-                transform: translateX(0);
-              }
-              100% {
-                transform: translateX(calc(-250px * 11));
-              }
-            }
-            
-            @media (max-width: 768px) {
-              .countries-slider {
-                width: calc(200px * 11);
-              }
-              
-              .country-item {
-                flex: 0 0 200px;
-                padding: 0 10px;
-              }
-              
-              .country-flag {
-                font-size: 2rem;
-                margin-right: 10px;
-              }
-              
-              .country-name {
-                font-size: 1rem;
-              }
-              
-              @keyframes slideCountries {
-                0% {
-                  transform: translateX(0);
-                }
-                100% {
-                  transform: translateX(calc(-200px * 11));
-                }
-              }
-            }
-          `}</style>
-          
-          <div className="countries-container">
-            <div className="countries-slider">
-              {/* Simplified countries list - only most representative per currency */}
-              {[
-                { flag: '$', name: 'Estados Unidos' },
-                { flag: '€', name: 'Alemanha' },
-                { flag: '£', name: 'Reino Unido' },
-                { flag: '¥', name: 'Japão' },
-                { flag: '₩', name: 'Coreia do Sul' },
-                { flag: 'kr', name: 'Suécia' },
-                { flag: '₣', name: 'Suíça' },
-                { flag: 'د.إ', name: 'Emirados Árabes' },
-                { flag: 'Kč', name: 'República Tcheca' },
-                { flag: 'Ft', name: 'Hungria' },
-                { flag: 'zł', name: 'Polônia' }
-              ]
-              .concat([
-                { flag: '$', name: 'Estados Unidos' },
-                { flag: '€', name: 'Alemanha' },
-                { flag: '£', name: 'Reino Unido' },
-                { flag: '¥', name: 'Japão' },
-                { flag: '₩', name: 'Coreia do Sul' },
-                { flag: 'kr', name: 'Suécia' },
-                { flag: '₣', name: 'Suíça' },
-                { flag: 'د.إ', name: 'Emirados Árabes' },
-                { flag: 'Kč', name: 'República Tcheca' },
-                { flag: 'Ft', name: 'Hungria' },
-                { flag: 'zł', name: 'Polônia' }
-              ])
-              .concat([
-                { flag: '$', name: 'Estados Unidos' },
-                { flag: '€', name: 'Alemanha' },
-                { flag: '£', name: 'Reino Unido' },
-                { flag: '¥', name: 'Japão' },
-                { flag: '₩', name: 'Coreia do Sul' },
-                { flag: 'kr', name: 'Suécia' },
-                { flag: '₣', name: 'Suíça' },
-                { flag: 'د.إ', name: 'Emirados Árabes' },
-                { flag: 'Kč', name: 'República Tcheca' },
-                { flag: 'Ft', name: 'Hungria' },
-                { flag: 'zł', name: 'Polônia' }
-              ])
-              .map((country, index) => (
-                <div key={`country-${index}`} className="country-item">
-                  <span className="country-flag">{country.flag}</span>
-                  <span className="country-name">{country.name}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+ 
 
         <div className="w-full h-full flex items-center justify-center overlay">
         {sectionsData.map((section, index) => {
@@ -535,7 +568,7 @@ export default function Home() {
         })}
         </div>
               
-          <div className="max-w-2xl mx-auto bg-[#151515] text-center">
+          <div className="max-w-2xl mx-auto bg-[#151515] text-center mb-16 pb-10"> {/* Espaço abaixo do botão 'QUERO ME JUNTAR À MENTORIA' e padding extra no fundo escuro */}
             <a 
               href="https://quiz.felipiska.com/" 
               target="_blank" 
@@ -546,39 +579,6 @@ export default function Home() {
               QUERO ME JUNTAR À MENTORIA
             </a>
           </div>     
-
-        <div className="w-full bg-gradient-to-b from-[#141314] via-[#141314]  to-white py-16 px-4">
-          <div className="w-full h-full flex items-center justify-center">
-            <div className="max-w-md mx-auto bg-white border-2 border-green-500 shadow-lg shadow-black/50 rounded-2xl p-8 text-center">
-              {/* Title */}
-              <h2 className="text-3xl font-light text-black mb-8 leading-tight">
-                O que você vai receber<br />
-                nessa Consultoria Gratuita?
-              </h2>
-              
-              {/* Benefits List */}
-              <div className="space-y-4">
-                {[
-                  "Plano prático de como fazer sua primeira venda em euro em 24 horas!",
-                  "Geradores de big que mais convertem e métodos certa e tão melhor é melhor",
-                  "Como encontrar fornecedores globais para venda de física ao cliente europeu",
-                  "Estratégias de traffic low cost com um setup simples com ALTÍSSIMO rendimento"
-                ].map((benefit, index) => (
-                  <a
-                    key={index}
-                    href="https://quiz.felipiska.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block w-full bg-gradient-to-r shadow-lg shadow-black/10 border-1 border-gray-500/50 text-gray-900 font-light py-4 px-6 rounded-lg text-sm leading-tight hover:bg-gray-800 transition-all duration-300 hover:scale-105 cursor-pointer"
-                    onClick={() => trackCTAClick(3, 'Benefit', benefit)}
-                  >
-                    {benefit}
-                  </a>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
 
         {/* Background decoration */}
         <div className="fixed inset-0 -z-10 overflow-hidden">
