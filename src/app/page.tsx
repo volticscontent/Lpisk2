@@ -194,7 +194,7 @@ export default function Home() {
                 {/* Banner Image - Only on first section at top */}
                 {section.id === 1 ? (
                   <Image
-                    src="/banner.png"
+                    src="/banner1.png"
                     alt="Banner Principal LP Piska"
                     width={1920}
                     height={1080}
