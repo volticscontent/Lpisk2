@@ -88,6 +88,59 @@ const trackCTAClick = (ctaNumber: number, sectionId: number, ctaType: string, bu
   }
 }
 
+// Function to build quiz URL with UTM parameters
+const buildQuizURL = (source: string = 'landing-page') => {
+  const baseURL = 'https://quiz.felipiska.com/';
+  
+  if (typeof window === 'undefined') {
+    return baseURL;
+  }
+
+  try {
+    const storedParams = sessionStorage.getItem('utmParams');
+    if (!storedParams) {
+      // Se não há UTMs armazenados, adicionar UTMs básicos para rastreamento interno
+      const fallbackURL = `${baseURL}?utm_source=${source}&utm_medium=cta&utm_campaign=piscapage`;
+      console.log('🔗 Quiz URL (sem UTMs originais):', fallbackURL);
+      return fallbackURL;
+    }
+
+    const utmParams = JSON.parse(storedParams);
+    const urlParams = new URLSearchParams();
+
+    // Adicionar UTMs originais se existirem
+    if (utmParams.utm_source) urlParams.append('utm_source', utmParams.utm_source);
+    if (utmParams.utm_medium) urlParams.append('utm_medium', utmParams.utm_medium);
+    if (utmParams.utm_campaign) urlParams.append('utm_campaign', utmParams.utm_campaign);
+    if (utmParams.utm_term) urlParams.append('utm_term', utmParams.utm_term);
+    if (utmParams.utm_content) urlParams.append('utm_content', utmParams.utm_content);
+    
+    // Adicionar identificadores de cliques do Facebook e Google se existirem
+    if (utmParams.fbclid) urlParams.append('fbclid', utmParams.fbclid);
+    if (utmParams.gclid) urlParams.append('gclid', utmParams.gclid);
+
+    // Se não temos UTMs originais, adicionar UTMs padrão para rastreamento
+    if (!utmParams.utm_source && !utmParams.utm_medium && !utmParams.utm_campaign) {
+      urlParams.append('utm_source', source);
+      urlParams.append('utm_medium', 'cta');
+      urlParams.append('utm_campaign', 'piscapage');
+    }
+
+    const queryString = urlParams.toString();
+    const finalURL = queryString ? `${baseURL}?${queryString}` : baseURL;
+    
+    console.log(`🔗 Quiz URL construída (${source}):`, finalURL);
+    console.log('📊 Parâmetros UTM passados adiante:', Object.fromEntries(urlParams));
+    
+    return finalURL;
+  } catch (error) {
+    console.error('Erro ao construir URL do quiz:', error);
+    const fallbackURL = `${baseURL}?utm_source=${source}&utm_medium=cta&utm_campaign=piscapage`;
+    console.log('🔗 Quiz URL (fallback):', fallbackURL);
+    return fallbackURL;
+  }
+}
+
 const sectionsData = [
   {
     id: 1,
@@ -139,10 +192,26 @@ export default function Home() {
   const [realValue, setRealValue] = useState(325000)
   const [selectedOrders, setSelectedOrders] = useState(17)
   const exchangeRate = 6.50
+  
+  // Quiz URLs with UTM tracking
+  const [quizURLs, setQuizURLs] = useState({
+    banner1: 'https://quiz.felipiska.com/',
+    images: 'https://quiz.felipiska.com/',
+    continue: 'https://quiz.felipiska.com/',
+    joinMentoria: 'https://quiz.felipiska.com/'
+  })
 
-  // Ensure hydration
+  // Ensure hydration and build quiz URLs
   useEffect(() => {
     setIsClient(true)
+    
+    // Build quiz URLs with UTM parameters after hydration
+    setQuizURLs({
+      banner1: buildQuizURL('banner1'),
+      images: buildQuizURL('images'),
+      continue: buildQuizURL('continue'),
+      joinMentoria: buildQuizURL('join-mentoria')
+    })
   }, [])
 
   // Handle Euro input change
@@ -210,16 +279,16 @@ export default function Home() {
                     className="w- h-auto object-cover"
                   />
                   {/* Button */}
-                  <div className="mb-16 mt-10"> {/* Aumenta o espaçamento abaixo do primeiro botão */}
-                      <a 
-                        href="https://quiz.felipiska.com/" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="inline-block bg-gradient-to-r rounded-lg shadow-lg shadow-green-500/50 from-green-500 via-green-600 to-green-700 text-white px-8 py-5 text-base hover:bg-gray-800 transition-colors cursor-pointer"
-                        onClick={() => trackCTAClick(1, section.id, 'Banner', section.buttonText)}
-                      >
-                        {section.buttonText}
-                      </a>
+                                      <div className="mb-16 mt-10"> {/* Aumenta o espaçamento abaixo do primeiro botão */}
+                        <a 
+                          href={quizURLs.banner1} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-block bg-gradient-to-r rounded-lg shadow-lg shadow-green-500/50 from-green-500 via-green-600 to-green-700 text-white px-8 py-5 text-base hover:bg-gray-800 transition-colors cursor-pointer"
+                          onClick={() => trackCTAClick(1, section.id, 'Banner', section.buttonText)}
+                        >
+                          {section.buttonText}
+                        </a>
                       <p className="text-gray-500 text-sm mt-3 text-center">
                         Selecionaremos apenas 8 pessoas no mês de julho
                       </p>
@@ -269,7 +338,7 @@ export default function Home() {
                     {/* Button above images */}
                     <div className="text-center mt-8 mb-12">
                       <a 
-                        href="https://quiz.felipiska.com/" 
+                        href={quizURLs.images} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="inline-block bg-gradient-to-r rounded-lg shadow-lg shadow-green-500/50 from-green-500 via-green-600 to-green-700 text-white px-8 py-5 text-base hover:bg-gray-800 transition-colors cursor-pointer"
@@ -475,7 +544,7 @@ export default function Home() {
                     {/* Continue Button */}
                     <div className="text-center mt-8 mb-12">
                       <a 
-                        href="https://quiz.felipiska.com/" 
+                        href={quizURLs.continue} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="inline-block bg-gradient-to-r rounded-lg shadow-lg shadow-green-500/50 from-green-500 via-green-600 to-green-700 text-white px-8 py-5 text-base hover:bg-gray-800 transition-colors cursor-pointer"
@@ -680,7 +749,7 @@ export default function Home() {
               
           <div className="text-center bg-[#151515] pb-10">
             <a 
-              href="https://quiz.felipiska.com/" 
+              href={quizURLs.joinMentoria} 
               target="_blank" 
               rel="noopener noreferrer"
               className="inline-block bg-gradient-to-r rounded-lg shadow-lg shadow-green-500/50 from-green-500 via-green-600 to-green-700 text-white px-8 py-5 text-base hover:bg-gray-800 transition-colors cursor-pointer"
