@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Maven_Pro } from "next/font/google";
 import Script from "next/script";
+import Image from "next/image";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -128,9 +129,9 @@ export default function RootLayout({
           }}
         />
         <noscript>
-          <img 
-            height="1" 
-            width="1" 
+          <Image 
+            height={1} 
+            width={1} 
             style={{display: 'none'}}
             src="https://www.facebook.com/tr?id=1665742907429984&ev=PageView&noscript=1"
             alt=""

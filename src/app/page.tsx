@@ -6,8 +6,8 @@ import { useState, useEffect } from 'react'
 // Declare fbq and gtag for TypeScript
 declare global {
   interface Window {
-    fbq: (...args: any[]) => void;
-    gtag: (...args: any[]) => void;
+    fbq: (command: string, eventType: string, parameters?: Record<string, unknown>) => void;
+    gtag: (command: string, action: string, parameters?: Record<string, unknown>) => void;
   }
 }
 
