@@ -35,34 +35,6 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" suppressHydrationWarning={true}>
       <head>
-        {/* Google Analytics */}
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-D6BPDXCNJQ"
-          strategy="afterInteractive"
-          id="google-analytics-script"
-        />
-        <Script
-          id="google-analytics-config"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              
-              // O ID será configurado dinamicamente pelo page.tsx
-              // Substitua G-G-D6BPDXCNJQ pelo seu ID real do Google Analytics
-              gtag('config', 'G-D6BPDXCNJQ', {
-                page_title: 'PiscaForm - Quiz Interativo',
-                page_location: window.location.href,
-                custom_map: {
-                  'dimension1': 'quiz_step'
-                }
-              });
-            `,
-          }}
-        />
-        
         {/* Meta Pixel Code */}
         <Script
           id="meta-pixel"
@@ -79,7 +51,39 @@ export default function RootLayout({
               'https://connect.facebook.net/en_US/fbevents.js');
               
               // Inicializar o pixel
-              fbq('init', '1665742907429984');
+              fbq('init', '730034323072546');
+              
+              // Função para capturar e armazenar parâmetros UTM
+              function captureAndStoreUTMParams() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const utmData = {
+                  utm_source: urlParams.get('utm_source') || '',
+                  utm_medium: urlParams.get('utm_medium') || '',
+                  utm_campaign: urlParams.get('utm_campaign') || '',
+                  utm_term: urlParams.get('utm_term') || '',
+                  utm_content: urlParams.get('utm_content') || '',
+                  fbclid: urlParams.get('fbclid') || '',
+                  gclid: urlParams.get('gclid') || '',
+                  referrer: document.referrer || '',
+                  landing_page: window.location.href,
+                  timestamp: new Date().toISOString()
+                };
+                
+                // Armazenar no sessionStorage se há parâmetros relevantes
+                if (utmData.utm_source || utmData.utm_medium || utmData.fbclid || utmData.gclid) {
+                  try {
+                    sessionStorage.setItem('utmParams', JSON.stringify(utmData));
+                    console.log('📊 Parâmetros UTM capturados e armazenados:', utmData);
+                  } catch (error) {
+                    console.error('❌ Erro ao armazenar parâmetros UTM:', error);
+                  }
+                }
+                
+                return utmData;
+              }
+              
+              // Capturar parâmetros UTM na inicialização
+              const capturedParams = captureAndStoreUTMParams();
               
               // Função para capturar todos os parâmetros de tracking
               function getAllTrackingParams() {
@@ -99,43 +103,14 @@ export default function RootLayout({
                 };
               }
               
-              // Capturar parâmetros de tracking
-              const trackingParams = getAllTrackingParams();
-              
-              // Armazenar parâmetros importantes no sessionStorage
-              if (trackingParams.utm_source || trackingParams.utm_medium || trackingParams.utm_campaign || 
-                  trackingParams.fbclid || trackingParams.gclid) {
-                try {
-                  sessionStorage.setItem('utmParams', JSON.stringify(trackingParams));
-                  console.log('📱 Parâmetros de tracking capturados e armazenados:', trackingParams);
-                } catch (error) {
-                  console.error('Erro ao armazenar parâmetros de tracking:', error);
-                }
-              }
-              
-              // Filtrar parâmetros não vazios para o PageView
-              const cleanParams = {};
-              Object.entries(trackingParams).forEach(([key, value]) => {
-                if (value && value !== '') {
-                  cleanParams[key] = value;
-                }
-              });
-              
-              // ENVIAR APENAS UM PAGEVIEW - SEM EVENTOS DUPLICADOS
-              console.log('📊 Enviando PageView único para Meta Pixel:', cleanParams);
-              fbq('track', 'PageView', cleanParams);
+              // Disparar evento LPage-view-typeform
+              const cleanParams = getAllTrackingParams();
+              fbq('trackCustom', 'LPage-view-typeform', cleanParams);
+              console.log('📊 Meta Pixel: LPage-view-typeform disparado com parâmetros:', cleanParams);
             `,
           }}
         />
         <noscript>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img 
-            height="1" 
-            width="1" 
-            style={{display: 'none'}}
-            src="https://www.facebook.com/tr?id=1665742907429984&ev=PageView&noscript=1"
-            alt=""
-          />
         </noscript>
       </head>
       <body

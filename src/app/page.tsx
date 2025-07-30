@@ -3,15 +3,14 @@
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
 
-// Declare fbq and gtag for TypeScript
+// Declare fbq for TypeScript (apenas inicialização, sem eventos)
 declare global {
   interface Window {
     fbq: (command: string, eventType: string, parameters?: Record<string, unknown>) => void;
-    gtag: (command: string, action: string, parameters?: Record<string, unknown>) => void;
   }
 }
 
-// Enhanced tracking function for Meta Pixel and Google Analytics
+// Enhanced tracking function - eventos Meta Pixel adicionados
 const trackCTAClick = (ctaNumber: number, sectionId: number, ctaType: string, buttonText: string) => {
   // Only run on client side after hydration
   if (typeof window !== 'undefined') {
@@ -28,61 +27,36 @@ const trackCTAClick = (ctaNumber: number, sectionId: number, ctaType: string, bu
         console.error('Erro ao recuperar parâmetros UTM:', error);
       }
 
+      const baseEventData = {
+        cta_number: ctaNumber,
+        button_name: buttonText,
+        section_id: sectionId,
+        cta_type: ctaType,
+        section_name: `Seção ${sectionId}`,
+        timestamp: Date.now(),
+        page_url: window.location.href,
+        user_agent: navigator.userAgent,
+        ...utmParams
+      };
+
       // Meta Pixel tracking
       if (window.fbq) {
-        // InitiateQuiz event
-        window.fbq('track', 'InitiateQuiz', {
+        // Custom LPInitiate_Quiz-typeform event
+        const initiateQuizData = {
           content_name: `CTA_${ctaNumber}`,
           content_category: `Seção ${sectionId}`,
           value: ctaNumber,
           currency: 'BRL',
-          cta_number: ctaNumber,
-          button_name: buttonText,
-          section_id: sectionId,
-          cta_type: ctaType,
-          ...utmParams
-        });
+          ...baseEventData
+        };
+
+        window.fbq('trackCustom', 'LPInitiate_Quiz-typeform', initiateQuizData);
         
-        // Custom event for detailed tracking
-        window.fbq('trackCustom', 'CTA_Click', {
-          cta_number: ctaNumber,
-          button_name: buttonText,
-          section_id: sectionId,
-          cta_type: ctaType,
-          section_name: `Seção ${sectionId}`,
-          timestamp: Date.now(),
-          page_url: window.location.href,
-          ...utmParams
-        });
+        // Custom LPCta-click event with specific number and typeform suffix
+        const ctaEventName = `LPCta-click-${ctaNumber}-typeform`;
+        window.fbq('trackCustom', ctaEventName, baseEventData);
 
-        console.log(`📊 Meta Pixel: CTA #${ctaNumber} "${buttonText}" clicado na seção ${sectionId}`);
-      }
-
-      // Google Analytics tracking
-      if (window.gtag) {
-        window.gtag('event', 'cta_click', {
-          event_category: 'engagement',
-          event_label: `CTA_${ctaNumber}`,
-          cta_number: ctaNumber,
-          button_name: buttonText,
-          section_id: sectionId,
-          cta_type: ctaType,
-          value: ctaNumber,
-          custom_parameter_1: `cta_${ctaNumber}`,
-          custom_parameter_2: ctaType,
-          custom_parameter_3: buttonText,
-          ...utmParams
-        });
-
-        // Also track as conversion event
-        window.gtag('event', 'conversion', {
-          send_to: 'G-D6BPDXCNJQ',
-          event_category: 'CTA',
-          event_label: `CTA_${ctaNumber}`,
-          value: ctaNumber
-        });
-
-        console.log(`📈 Google Analytics: CTA #${ctaNumber} "${buttonText}" clicado na seção ${sectionId}`);
+        console.log(`📊 Meta Pixel: ${ctaEventName} e LPInitiate_Quiz-typeform - "${buttonText}" clicado na seção ${sectionId}`);
       }
     }, 0);
   }
@@ -90,7 +64,7 @@ const trackCTAClick = (ctaNumber: number, sectionId: number, ctaType: string, bu
 
 // Function to build quiz URL with UTM parameters
 const buildQuizURL = (source: string = 'landing-page') => {
-  const baseURL = 'https://quiz.felipiska.com/';
+  const baseURL = 'https://form.typeform.com/to/A6pgHoo2';
   
   if (typeof window === 'undefined') {
     return baseURL;
@@ -195,10 +169,10 @@ export default function Home() {
   
   // Quiz URLs with UTM tracking
   const [quizURLs, setQuizURLs] = useState({
-    banner1: 'https://quiz.felipiska.com/',
-    images: 'https://quiz.felipiska.com/',
-    continue: 'https://quiz.felipiska.com/',
-    joinMentoria: 'https://quiz.felipiska.com/'
+    banner1: 'https://form.typeform.com/to/A6pgHoo2',
+    images: 'https://form.typeform.com/to/A6pgHoo2',
+    continue: 'https://form.typeform.com/to/A6pgHoo2',
+    joinMentoria: 'https://form.typeform.com/to/A6pgHoo2'
   })
 
   // Ensure hydration and build quiz URLs
