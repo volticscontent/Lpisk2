@@ -3,10 +3,15 @@
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
 
-// Declare fbq for TypeScript (apenas inicialização, sem eventos)
+// Declare fbq and ttq for TypeScript
 declare global {
   interface Window {
     fbq: (command: string, eventType: string, parameters?: Record<string, unknown>) => void;
+    ttq: {
+      track: (eventName: string, parameters?: Record<string, unknown>) => void;
+      page: () => void;
+      load: (pixelId: string) => void;
+    };
   }
 }
 
@@ -57,6 +62,26 @@ const trackCTAClick = (ctaNumber: number, sectionId: number, ctaType: string, bu
         window.fbq('trackCustom', ctaEventName, baseEventData);
 
         console.log(`📊 Meta Pixel: ${ctaEventName} e LPInitiate_Quiz-typeform - "${buttonText}" clicado na seção ${sectionId}`);
+      }
+
+      // TikTok Pixel tracking
+      if (window.ttq) {
+        // Custom LPInitiate_Quiz-typeform event for TikTok
+        const tiktokInitiateData = {
+          content_name: `CTA_${ctaNumber}`,
+          content_category: `Seção ${sectionId}`,
+          value: ctaNumber,
+          currency: 'BRL',
+          ...baseEventData
+        };
+
+        window.ttq.track('LPInitiate_Quiz-typeform', tiktokInitiateData);
+        
+        // Custom LPCta-click event for TikTok
+        const tiktokCtaEventName = `LPCta-click-${ctaNumber}-typeform`;
+        window.ttq.track(tiktokCtaEventName, baseEventData);
+
+        console.log(`📊 TikTok Pixel: ${tiktokCtaEventName} e LPInitiate_Quiz-typeform - "${buttonText}" clicado na seção ${sectionId}`);
       }
     }, 0);
   }
