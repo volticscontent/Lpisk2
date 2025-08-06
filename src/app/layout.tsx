@@ -20,10 +20,10 @@ const mavenPro = Maven_Pro({
 });
 
 export const metadata: Metadata = {
-  title: "Wifi-M$ney - Quiz Interativo",
-  description: "Formulário em formato de quiz para consultoria estratégica",
+  title: "Wifi-M$ney - Mercado Global",
+  description: "Fature em dolar com a ajuda dos melhores profissionais do mercado",
   icons: {
-    icon: '/logo.jpg',
+    icon: '/wifi-money-logo.png',
   },
 };
 
@@ -51,7 +51,7 @@ export default function RootLayout({
               'https://connect.facebook.net/en_US/fbevents.js');
               
               // Inicializar o pixel
-              fbq('init', '730034323072546');
+              fbq('init', '728523633510605');
               
               // Função para capturar e armazenar parâmetros UTM
               function captureAndStoreUTMParams() {
@@ -103,10 +103,10 @@ export default function RootLayout({
                 };
               }
               
-              // Disparar evento LPage-view-typeform
+              // Disparar evento LPage-view
               const cleanParams = getAllTrackingParams();
-              fbq('trackCustom', 'LPage-view-typeform', cleanParams);
-              console.log('📊 Meta Pixel: LPage-view-typeform disparado com parâmetros:', cleanParams);
+              fbq('trackCustom', 'Att-LPageView', cleanParams);
+              console.log('📊 Meta Pixel: LPage-view disparado com parâmetros:', cleanParams);
             `,
           }}
         />
@@ -126,10 +126,10 @@ export default function RootLayout({
                 ttq.load('D259I0RC77U5781ILVK0');
                 ttq.page();
                 
-                // Disparar evento customizado LPage-view-typeform para TikTok
+                // Disparar evento customizado LPage-view para TikTok
                 const tiktokParams = getAllTrackingParams();
-                ttq.track('LPage-view-typeform', tiktokParams);
-                console.log('📊 TikTok Pixel: LPage-view-typeform disparado com parâmetros:', tiktokParams);
+                ttq.track('Att-LPageView', tiktokParams);
+                console.log('📊 TikTok Pixel: LPage-view disparado com parâmetros:', tiktokParams);
               }(window, document, 'ttq');
             `,
           }}
